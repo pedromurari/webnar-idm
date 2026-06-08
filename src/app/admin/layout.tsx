@@ -1,16 +1,6 @@
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { LayoutDashboard, Users, MessageCircle, TrendingUp, Megaphone, Settings, LogOut, Tv } from 'lucide-react'
-
-const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/leads', label: 'Leads CRM', icon: Users },
-  { href: '/admin/vendas', label: 'Vendas', icon: TrendingUp },
-  { href: '/admin/meta', label: 'Meta Ads', icon: Megaphone },
-  { href: '/admin/whatsapp', label: 'WhatsApp', icon: MessageCircle },
-  { href: '/admin/webinars', label: 'Webinários', icon: Tv },
-]
+import { AdminSidebar } from './AdminSidebar'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -18,39 +8,44 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user) redirect('/login')
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <aside className="w-64 shrink-0 border-r border-border bg-card flex flex-col">
-        <div className="p-5 border-b border-border">
-          <p className="font-black text-base">IDM Webinários</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Painel Administrativo</p>
+    <div style={{ minHeight: '100vh', background: '#070a14', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <header style={{
+        height: '56px', flexShrink: 0,
+        background: '#0d0d1a',
+        borderBottom: '1px solid rgba(255,255,255,.07)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 24px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* IDM badge */}
+          <div style={{
+            width: '32px', height: '32px', borderRadius: '50%',
+            border: '1px solid rgba(255,191,26,.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '0.65rem', fontWeight: 900, color: '#ffbf1a',
+          }}>IDM</div>
+          <div>
+            <p style={{ fontWeight: 800, fontSize: '0.9rem', color: '#f4ecd8', lineHeight: 1 }}>IDM Webinários</p>
+            <p style={{ fontSize: '0.65rem', color: 'rgba(244,236,216,.3)', letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: '2px' }}>Painel Administrativo</p>
+          </div>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
-          {navItems.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <div className="p-3 border-t border-border space-y-1">
-          <Link href="/admin/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary">
-            <Settings className="h-4 w-4" /> Configurações
-          </Link>
-          <form action="/api/auth/logout" method="POST">
-            <button type="submit" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary w-full">
-              <LogOut className="h-4 w-4" /> Sair
-            </button>
-          </form>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '8px', height: '8px', borderRadius: '50%',
+            background: '#00b837', boxShadow: '0 0 8px rgba(0,184,55,.6)',
+          }} />
+          <span style={{ fontSize: '0.72rem', color: 'rgba(244,236,216,.4)' }}>{user.email}</span>
         </div>
-      </aside>
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
+      </header>
+
+      {/* Body */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <AdminSidebar />
+        <main style={{ flex: 1, overflow: 'auto' }}>
+          {children}
+        </main>
+      </div>
     </div>
   )
 }
