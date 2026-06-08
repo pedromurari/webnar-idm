@@ -1,6 +1,9 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function getResend() {
+  if (!process.env.RESEND_API_KEY) return null
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 interface SendFollowUpParams {
   to: string
@@ -18,6 +21,8 @@ interface SendNoShowParams {
 }
 
 export async function sendFollowUpEmail({ to, name, webinarTitle, offerUrl, wppGroupUrl }: SendFollowUpParams) {
+  const resend = getResend()
+  if (!resend) return false
   try {
     await resend.emails.send({
       from: 'IDM <noreply@institutodesspertamente.com.br>',
@@ -65,6 +70,8 @@ export async function sendFollowUpEmail({ to, name, webinarTitle, offerUrl, wppG
 }
 
 export async function sendNoShowEmail({ to, name, webinarTitle, captureUrl }: SendNoShowParams) {
+  const resend = getResend()
+  if (!resend) return false
   try {
     await resend.emails.send({
       from: 'IDM <noreply@institutodesspertamente.com.br>',
