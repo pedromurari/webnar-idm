@@ -1,11 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { RegistrationForm } from '@/components/webinar/RegistrationForm'
+import { RegistrationFormLP } from '@/components/webinar/RegistrationFormLP'
 import type { Metadata } from 'next'
-import { DM_Sans, DM_Serif_Display } from 'next/font/google'
-
-const dmSans = DM_Sans({ subsets: ['latin'], display: 'swap' })
-const dmSerif = DM_Serif_Display({ subsets: ['latin'], weight: ['400'], display: 'swap' })
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -14,7 +10,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient()
   const { data } = await supabase.from('webinars').select('title, description').eq('slug', slug).single()
   if (!data) return { title: 'IDM Webinários' }
-  return { title: `${data.title} | IDM`, description: data.description || undefined }
+  return { title: `${data.title} | Instituto Despertamente`, description: data.description || undefined }
 }
 
 const features = [
@@ -24,12 +20,6 @@ const features = [
   { icon: '🎯', title: 'Propósito e Clareza', text: 'Descubra o que realmente move você e como alinhar suas escolhas ao seu propósito mais profundo.' },
   { icon: '❤️', title: 'Vínculos e Relações', text: 'Entenda como seus vínculos afetivos da infância ainda influenciam seus relacionamentos hoje.' },
   { icon: '🔑', title: 'Ferramentas de Transformação', text: 'Métodos práticos e aplicáveis para promover mudanças reais e duradouras na sua vida.' },
-]
-
-const testimonials = [
-  { stars: '★★★★★', text: '"Depois da aula, comecei a enxergar padrões que se repetiam há anos na minha vida. Foi uma virada completa de perspectiva."', name: 'CAMILA R.', city: 'São Paulo, SP' },
-  { stars: '★★★★★', text: '"Nunca imaginei que entender a psicanálise pudesse ser tão acessível. O conteúdo é profundo e ao mesmo tempo prático."', name: 'MARCOS T.', city: 'Rio de Janeiro, RJ' },
-  { stars: '★★★★★', text: '"A aula do Instituto Despertamente mudou a forma como eu me relaciono comigo mesmo e com as pessoas ao redor."', name: 'FERNANDA L.', city: 'Curitiba, PR' },
 ]
 
 export default async function CapturePage({ params }: Props) {
@@ -47,227 +37,306 @@ export default async function CapturePage({ params }: Props) {
 
   return (
     <>
+      {/* Google Fonts — same as SN-main reference */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+
+      {/* CSS — copied verbatim from SN-main, amber replaced with IDM gold */}
       <style>{`
-        :root {
-          --bg: #07070e;
-          --s1: #0c0c1a;
-          --s2: #121224;
+        /* ── RESET GLOBAL (sobrepõe globals.css do Next.js) ── */
+        html, body {
+          background: #000000 !important;
+          background-image: none !important;
+          color: #f5f5f7 !important;
+          font-family: 'DM Sans', system-ui, -apple-system, sans-serif !important;
+          font-size: 16px !important;
+          line-height: 1.6 !important;
+          min-height: 100vh !important;
+          overflow-x: hidden !important;
+          -webkit-font-smoothing: antialiased !important;
+        }
+        #lp-root * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        #lp-root a { text-decoration: none }
+
+        /* ── DESIGN TOKENS (idêntico ao SN-main, amber = IDM gold) ── */
+        #lp-root {
+          --bg: #000000;
+          --s1: #0a0a0a;
+          --s2: #141414;
+          --s3: #1c1c1e;
+          --s4: #2c2c2e;
           --border: rgba(255,255,255,.07);
           --border2: rgba(255,255,255,.12);
-          --gold: #ffbf1a;
-          --goldBg: rgba(255,191,26,.06);
-          --goldLine: rgba(255,191,26,.18);
-          --text: #f4ecd8;
+          --border3: rgba(255,255,255,.2);
+          --text: #f5f5f7;
           --text2: #a1a1a6;
           --text3: #6e6e73;
-          --r: 12px;
+          --amber: #ffbf1a;
+          --amber2: #ffe066;
+          --amberBg: rgba(255,191,26,.08);
+          --amberLine: rgba(255,191,26,.22);
+          --green: #c8883a;
+          --red: #a83818;
+          --r: 18px; --r-sm: 12px; --r-xs: 8px;
+          background: #000;
+          color: #f5f5f7;
+          font-family: 'DM Sans', system-ui, sans-serif;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0 }
-        html { scroll-behavior: smooth }
-        body {
-          background: var(--bg) !important;
-          color: var(--text) !important;
-          font-family: ${dmSans.style.fontFamily}, system-ui, sans-serif !important;
-          font-size: 16px; line-height: 1.6;
-          min-height: 100vh; overflow-x: hidden;
-          -webkit-font-smoothing: antialiased;
-        }
-        .idm-nav {
+
+        /* ── ANIMAÇÕES (idêntico ao SN-main) ── */
+        @keyframes fadeUp2 { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeIn2 { from{opacity:0} to{opacity:1} }
+        @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+        @keyframes pulseAmber { 0%,100%{box-shadow:0 0 0 0 rgba(255,191,26,.35)} 70%{box-shadow:0 0 0 10px transparent} }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        @keyframes glow { 0%,100%{text-shadow:0 0 20px rgba(255,191,26,.3)} 50%{text-shadow:0 0 40px rgba(255,191,26,.7),0 0 80px rgba(255,191,26,.2)} }
+
+        /* ── NAVBAR (idêntico ao SN-main v2) ── */
+        .v2-nav {
           position: fixed; top: 0; left: 0; right: 0; z-index: 100;
           padding: 0 32px; height: 56px;
           display: flex; align-items: center; justify-content: space-between;
-          background: rgba(7,7,14,.88);
+          background: rgba(0,0,0,.8);
           backdrop-filter: saturate(180%) blur(20px);
           -webkit-backdrop-filter: saturate(180%) blur(20px);
-          border-bottom: 1px solid var(--border);
+          border-bottom: 1px solid rgba(255,255,255,.07);
         }
-        .idm-nav-logo {
+        .v2-nav-logo {
           display: inline-flex; align-items: center; gap: 10px;
-          text-decoration: none;
+          text-decoration: none; cursor: pointer;
         }
-        .idm-nav-badge {
-          width: 36px; height: 36px; border-radius: 50%;
-          border: 1px solid var(--goldLine);
+        .v2-nav-logo-badge {
+          width: 40px; height: 40px; border-radius: 50%;
+          border: 1px solid rgba(255,191,26,.3);
           display: flex; align-items: center; justify-content: center;
-          font-size: .6rem; font-weight: 900; color: var(--gold);
-          letter-spacing: .04em;
+          font-size: .58rem; font-weight: 900; color: #ffbf1a;
+          letter-spacing: .04em; flex-shrink: 0;
         }
-        .idm-nav-name { font-size: .82rem; font-weight: 700; color: var(--text); letter-spacing: .02em }
-        .idm-nav-cta {
-          font-size: .78rem; font-weight: 600; color: var(--gold);
-          letter-spacing: .05em; cursor: pointer; padding: 6px 16px;
-          border: 1px solid var(--goldLine); border-radius: 20px;
-          transition: all .25s; background: var(--goldBg);
-          text-decoration: none; display: inline-block;
+        .v2-nav-logo-name {
+          font-family: 'DM Serif Display', serif;
+          font-size: .95rem; font-weight: 400; color: #fff; letter-spacing: -.01em;
         }
-        .idm-nav-cta:hover { background: rgba(255,191,26,.15); border-color: rgba(255,191,26,.4) }
+        .v2-nav-cta {
+          font-size: .78rem; font-weight: 600; color: var(--amber);
+          letter-spacing: .05em; cursor: pointer; padding: 6px 14px;
+          border: 1px solid var(--amberLine); border-radius: 20px;
+          transition: all .25s; background: var(--amberBg); text-decoration: none;
+          display: inline-block;
+        }
+        .v2-nav-cta:hover { background: rgba(255,191,26,.15); border-color: rgba(255,191,26,.4) }
 
-        .idm-ticker {
+        /* ── TICKER (idêntico ao SN-main) ── */
+        .v2-ticker-wrap { overflow: hidden; margin-top: 56px }
+        .v2-ticker {
           background: rgba(255,191,26,.04);
           border-bottom: 1px solid rgba(255,191,26,.08);
           overflow: hidden; height: 36px;
           display: flex; align-items: center;
-          margin-top: 56px;
         }
-        .idm-ticker-inner {
+        .v2-ticker-inner {
           display: flex; gap: 0; white-space: nowrap;
-          animation: ticker 28s linear infinite;
+          animation: ticker 30s linear infinite;
         }
-        .idm-ticker-item {
+        .v2-ticker-inner span {
           display: inline-flex; align-items: center; gap: 8px;
-          padding: 0 36px; font-size: .72rem; font-weight: 500;
+          padding: 0 32px; font-size: .72rem; font-weight: 500;
           color: var(--text2); letter-spacing: .04em;
         }
-        .idm-ticker-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); flex-shrink: 0 }
-        @keyframes ticker { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+        .v2-ticker-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--amber); flex-shrink: 0 }
 
-        .idm-hero {
+        /* ── HERO BODY (idêntico ao SN-main) ── */
+        .v2-hero-body {
           max-width: 840px; margin: 0 auto;
           padding: 72px 24px 80px; text-align: center;
         }
-        .idm-eyebrow {
+        .v2-eyebrow {
           display: inline-flex; align-items: center; gap: 10px;
           font-size: .72rem; font-weight: 700; letter-spacing: .12em;
-          text-transform: uppercase; color: var(--gold); margin-bottom: 28px;
+          text-transform: uppercase; color: var(--amber); margin-bottom: 28px;
+          animation: fadeUp2 .6s ease both;
         }
-        .idm-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold) }
-        .idm-h1 {
-          font-family: ${dmSerif.style.fontFamily}, Georgia, serif;
-          font-size: clamp(2.4rem, 7vw, 4.8rem); font-weight: 400;
-          color: #fff; line-height: 1.08; letter-spacing: -.02em; margin-bottom: 20px;
-          text-wrap: balance; max-width: 720px; margin-left: auto; margin-right: auto;
+        .v2-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber) }
+        .v2-hero-h1 {
+          font-family: 'DM Serif Display', serif;
+          font-size: clamp(2.6rem,7vw,5.2rem); font-weight: 400;
+          color: #fff; line-height: 1.05; letter-spacing: -.02em;
+          margin-bottom: 20px; text-wrap: balance;
+          max-width: 700px; margin-left: auto; margin-right: auto;
+          animation: fadeUp2 .6s ease .1s both;
         }
-        .idm-h1-accent { color: var(--gold) }
-        .idm-hero-sub {
-          font-size: clamp(1rem, 2.5vw, 1.15rem); color: var(--text2);
-          line-height: 1.7; max-width: 540px; margin: 0 auto 40px; font-weight: 400;
+        .v2-hero-accent { color: var(--amber) }
+        .v2-hero-sub {
+          font-size: clamp(1rem,2.5vw,1.18rem); color: var(--text2);
+          line-height: 1.7; max-width: 560px; margin: 0 auto 40px;
+          animation: fadeUp2 .6s ease .2s both; font-weight: 400;
         }
-        .idm-cta-wrap { margin-bottom: 0 }
-        .idm-cta {
+        .v2-hero-cta-wrap { animation: fadeUp2 .6s ease .4s both }
+        .v2-hero-cta {
           display: inline-flex; align-items: center; gap: 10px;
-          background: #fff; color: #000;
-          font-family: ${dmSans.style.fontFamily}, system-ui, sans-serif;
+          background: #fff; color: #000; font-family: 'DM Sans', sans-serif;
           font-size: 1rem; font-weight: 800; letter-spacing: .01em;
           padding: 17px 36px; border-radius: 50px; border: none; cursor: pointer;
           transition: all .25s; text-decoration: none;
         }
-        .idm-cta:hover { background: #f5f5f5; transform: scale(1.03); box-shadow: 0 8px 32px rgba(255,255,255,.14) }
-        .idm-cta-arrow { transition: transform .25s }
-        .idm-cta:hover .idm-cta-arrow { transform: translateX(4px) }
-        .idm-cta-sub { font-size: .72rem; color: var(--text3); margin-top: 14px; font-weight: 500 }
+        .v2-hero-cta:hover { background: #f5f5f5; transform: scale(1.03); box-shadow: 0 8px 32px rgba(255,255,255,.14) }
+        .v2-hero-cta svg { transition: transform .25s }
+        .v2-hero-cta:hover svg { transform: translateX(4px) }
+        .v2-cta-sub { font-size: .72rem; color: var(--text3); margin-top: 12px; font-weight: 500 }
 
-        .idm-hero-stats {
+        /* ── STATS (idêntico ao SN-main) ── */
+        .v2-hero-stats {
           display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
-          margin-top: 72px; padding-top: 40px; border-top: 1px solid var(--border);
+          margin-top: 80px; padding-top: 40px; border-top: 1px solid var(--border);
+          animation: fadeUp2 .6s ease .5s both;
         }
-        .idm-stat .val {
-          font-family: ${dmSerif.style.fontFamily}, Georgia, serif;
-          font-size: 2rem; font-weight: 400; color: #fff; display: block;
+        .v2-stat-num {
+          font-family: 'DM Serif Display', serif;
+          font-size: 2rem; font-weight: 400; color: #fff; display: block; line-height: 1.1;
         }
-        .idm-stat .lbl { font-size: .72rem; color: var(--text3); font-weight: 500; letter-spacing: .04em }
+        .v2-stat-label { font-size: .72rem; color: var(--text3); font-weight: 500; letter-spacing: .04em; margin-top: 4px; display: block }
 
-        .lp-section { width: 100%; padding: 56px 24px; border-top: 1px solid rgba(255,255,255,.06) }
+        /* ── LP SECTIONS (idêntico ao SN-main) ── */
+        .lp-section { width: 100%; padding: 48px 24px; border-top: 1px solid rgba(255,255,255,.06) }
         .lp-inner { max-width: 860px; margin: 0 auto }
         .lp-label {
           font-size: .68rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
-          color: var(--gold); margin-bottom: 18px;
+          color: var(--amber); margin-bottom: 18px;
           display: inline-flex; align-items: center; gap: 10px;
         }
-        .lp-label::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); flex-shrink: 0 }
+        .lp-label::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--amber); flex-shrink: 0 }
         .lp-h2 {
-          font-family: ${dmSerif.style.fontFamily}, Georgia, serif;
-          font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 400;
-          color: #fff; line-height: 1.1; letter-spacing: -.02em; margin-bottom: 20px; text-wrap: balance;
+          font-family: 'DM Serif Display', serif;
+          font-size: clamp(1.9rem,4.5vw,3rem); font-weight: 400;
+          color: #fff; line-height: 1.1; letter-spacing: -.02em;
+          margin-bottom: 20px; text-wrap: balance;
         }
-        .lp-lead { font-size: clamp(.92rem, 2vw, 1.05rem); color: var(--text2); line-height: 1.78; max-width: 680px }
+        .lp-lead { font-size: clamp(.92rem,2vw,1.05rem); color: var(--text2); line-height: 1.78; max-width: 680px }
 
+        /* ── FEATURE GRID (idêntico ao SN-main) ── */
         .lp-what-grid {
-          display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
           gap: 16px; margin-top: 48px;
         }
         .lp-what-card {
-          background: var(--s1); border: 1px solid var(--border);
-          border-radius: var(--r); padding: 24px 20px; transition: border-color .25s;
+          background: #0c0c1a; border: 1px solid rgba(255,255,255,.07);
+          border-radius: 12px; padding: 24px 20px; transition: border-color .25s;
         }
         .lp-what-card:hover { border-color: rgba(255,191,26,.28) }
         .lp-what-icon { font-size: 1.6rem; margin-bottom: 12px; display: block }
-        .lp-what-title {
-          font-family: ${dmSerif.style.fontFamily}, Georgia, serif;
-          font-size: 1rem; color: #fff; margin-bottom: 8px;
-        }
+        .lp-what-title { font-family: 'DM Serif Display', serif; font-size: 1rem; color: #fff; margin-bottom: 8px }
         .lp-what-text { font-size: .84rem; color: var(--text3); line-height: 1.6 }
 
+        /* ── MID CTA (idêntico ao SN-main) ── */
         .lp-cta-mid {
-          padding: 56px 24px; text-align: center;
-          background: linear-gradient(180deg, transparent, rgba(255,191,26,.04), transparent);
+          padding: 48px 24px; text-align: center;
+          background: linear-gradient(180deg,transparent,rgba(255,191,26,.05),transparent);
           border-top: 1px solid rgba(255,255,255,.05);
           border-bottom: 1px solid rgba(255,255,255,.05);
         }
         .lp-cta-mid p { font-size: .82rem; color: var(--text3); margin-top: 14px }
 
-        .lp-test-grid {
-          display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        /* ── VIDEO GRID / DEPOIMENTOS (idêntico ao SN-main) ── */
+        .lp-video-grid {
+          display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
           gap: 20px; margin-top: 40px;
         }
-        .lp-test-card {
-          background: var(--s1); border: 1px solid var(--border);
-          border-radius: var(--r); padding: 24px;
+        .lp-video-wrap {
+          position: relative; border-radius: 12px; overflow: hidden;
+          background: #0c0c1a; border: 1px solid rgba(255,255,255,.07);
+          aspect-ratio: 16/9;
         }
-        .lp-test-stars { color: var(--gold); font-size: .75rem; margin-bottom: 10px; letter-spacing: 2px }
-        .lp-test-text { font-size: .88rem; color: var(--text2); line-height: 1.65; margin-bottom: 14px; font-style: italic }
-        .lp-test-name { font-size: .72rem; font-weight: 700; color: var(--text3); letter-spacing: .06em; text-transform: uppercase }
-        .lp-test-city { font-size: .65rem; color: var(--text3); letter-spacing: .04em; margin-top: 2px }
+        .lp-video-placeholder {
+          position: absolute; inset: 0; display: flex; flex-direction: column;
+          align-items: center; justify-content: center; gap: 10px;
+          color: var(--text3); font-size: .82rem; text-align: center; padding: 20px;
+          font-family: 'DM Sans', sans-serif;
+        }
+        .lp-video-placeholder svg { opacity: .35 }
+        .lp-test-stars { color: var(--amber); font-size: .75rem; letter-spacing: 2px; margin-bottom: 8px }
+        .lp-test-text { font-size: .88rem; color: var(--text2); line-height: 1.6; font-style: italic; margin-bottom: 10px }
+        .lp-test-name { font-size: .7rem; font-weight: 700; color: var(--text3); letter-spacing: .06em; text-transform: uppercase }
 
+        /* ── FOUNDER (idêntico ao SN-main) ── */
         .lp-founder-grid {
           display: grid; grid-template-columns: 1fr 1fr;
           gap: 48px; align-items: center; margin-top: 40px;
         }
-        .lp-founder-photo {
-          border-radius: 16px; overflow: hidden;
-          background: var(--s1); border: 1px solid var(--border);
-          aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
-          color: var(--text3); font-size: .82rem; text-align: center; padding: 20px;
+        .lp-founder-video {
+          position: relative; border-radius: 16px; overflow: hidden;
+          background: #0c0c1a; border: 1px solid rgba(255,255,255,.07);
+          aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;
         }
-        .lp-founder-photo img { width: 100%; height: 100%; object-fit: cover; display: block }
         .lp-founder-name {
-          font-family: ${dmSerif.style.fontFamily}, Georgia, serif;
-          font-size: 2rem; color: #fff; margin-bottom: 4px; line-height: 1;
+          font-family: 'DM Serif Display', serif; font-size: 2rem;
+          color: #fff; margin-bottom: 4px; line-height: 1;
         }
         .lp-founder-role {
           font-size: .68rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
-          color: var(--gold); margin-bottom: 24px;
+          color: var(--amber); margin-bottom: 24px;
           display: inline-flex; align-items: center; gap: 8px;
         }
-        .lp-founder-role::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--gold) }
+        .lp-founder-role::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--amber) }
         .lp-founder-text { font-size: .95rem; color: var(--text2); line-height: 1.8; margin-bottom: 16px }
 
-        .lp-form-section { padding: 64px 24px 80px; border-top: 1px solid rgba(255,255,255,.06) }
-        .lp-form-inner { max-width: 520px; margin: 0 auto }
-        .lp-form-label { font-size: .68rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; display: block }
-        .lp-form-h2 {
-          font-family: ${dmSerif.style.fontFamily}, Georgia, serif;
-          font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 400;
+        /* ── FORM SECTION (adaptado do SN-main v2Form) ── */
+        .lp-form-section { border-top: 1px solid rgba(255,255,255,.06) }
+        .v2-form-inner { max-width: 480px; margin: 0 auto; padding: 80px 24px 80px }
+        .v2-form-eyebrow {
+          font-size: .7rem; font-weight: 700; letter-spacing: .12em;
+          text-transform: uppercase; color: var(--amber); margin-bottom: 12px; display: block;
+        }
+        .v2-form-h2 {
+          font-family: 'DM Serif Display', serif;
+          font-size: clamp(1.8rem,5vw,2.8rem); font-weight: 400;
           color: #fff; line-height: 1.1; letter-spacing: -.02em; margin-bottom: 10px;
         }
-        .lp-form-sub { font-size: .95rem; color: var(--text2); line-height: 1.65; margin-bottom: 36px }
-        .lp-form-card {
-          background: linear-gradient(160deg, rgba(16,16,30,.98), rgba(10,10,22,1));
-          border: 1px solid rgba(255,191,26,.12);
-          border-top: 1px solid rgba(255,191,26,.22);
-          border-radius: 14px; padding: 36px 32px;
-          position: relative; overflow: hidden;
-          box-shadow: 0 60px 120px rgba(0,0,0,.8);
+        .v2-form-sub { font-size: .95rem; color: var(--text2); line-height: 1.6; margin-bottom: 40px }
+        .v2-form-card {
+          background: var(--s1); border: 1px solid var(--border);
+          border-radius: var(--r); padding: 32px;
         }
-        .lp-form-card::before {
-          content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-          width: 50%; height: 2px;
-          background: linear-gradient(90deg, transparent, rgba(255,191,26,.6), transparent);
+        .v2-field { margin-bottom: 20px }
+        .v2-field-label {
+          display: block; font-size: .72rem; font-weight: 700;
+          letter-spacing: .1em; text-transform: uppercase;
+          color: var(--text3); margin-bottom: 8px;
         }
-        .lp-form-footer { margin-top: 20px; font-size: .78rem; color: var(--text3); text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px }
+        .v2-field-input {
+          width: 100%; padding: 15px 18px;
+          background: var(--s2); border: 1.5px solid var(--border) !important;
+          border-radius: var(--r-sm);
+          color: #fff; font-family: 'DM Sans', sans-serif;
+          font-size: 1rem; font-weight: 500; outline: none !important;
+          transition: all .25s; box-shadow: none !important;
+        }
+        .v2-field-input:focus {
+          border-color: var(--amber) !important;
+          background: rgba(255,191,26,.04);
+          box-shadow: 0 0 0 3px rgba(255,191,26,.12) !important;
+          outline: none !important;
+        }
+        .v2-field-input::placeholder { color: var(--text3) }
+        .v2-submit-btn {
+          width: 100%; padding: 17px; margin-top: 8px;
+          background: var(--amber); color: #000; border: none !important;
+          border-radius: var(--r-sm); font-family: 'DM Sans', sans-serif;
+          font-size: 1rem; font-weight: 800; cursor: pointer; transition: all .25s;
+          letter-spacing: .01em;
+        }
+        .v2-submit-btn:hover { background: var(--amber2); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,191,26,.35) }
+        .v2-submit-btn:disabled { opacity: .7; cursor: wait }
+        .v2-err { color: #f09090; font-size: .82rem; font-weight: 600; min-height: 1.2em; margin-top: 8px; margin-bottom: 4px }
+        .v2-form-footer { font-size: .75rem; color: var(--text3); font-weight: 500; margin-top: 24px; text-align: center }
 
+        /* ── FOOTER (idêntico ao SN-main) ── */
         .lp-footer {
           background: #03030b; border-top: 1px solid rgba(255,255,255,.07);
-          padding: 52px 24px 28px;
+          padding: 48px 24px 28px;
         }
         .lp-footer-inner {
           max-width: 860px; margin: 0 auto;
@@ -277,106 +346,119 @@ export default async function CapturePage({ params }: Props) {
           width: 44px; height: 44px; border-radius: 50%;
           border: 1px solid rgba(255,191,26,.25);
           display: flex; align-items: center; justify-content: center;
-          font-size: .6rem; font-weight: 900; color: var(--gold);
-          margin-bottom: 14px;
+          font-size: .55rem; font-weight: 900; color: var(--amber);
+          margin-bottom: 14px; letter-spacing: .04em;
         }
         .lp-footer-brand-name {
-          font-family: ${dmSerif.style.fontFamily}, Georgia, serif;
-          font-size: 1.1rem; color: #fff; margin-bottom: 6px;
+          font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: #fff; margin-bottom: 6px;
         }
         .lp-footer-brand-sub { font-size: .8rem; color: var(--text3); line-height: 1.6 }
-        .lp-footer-col-title { font-size: .65rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px }
-        .lp-footer-link { display: block; font-size: .85rem; color: var(--text3); text-decoration: none; margin-bottom: 10px; transition: color .2s }
-        .lp-footer-link:hover { color: var(--gold) }
+        .lp-footer-col-title {
+          font-size: .65rem; font-weight: 700; letter-spacing: .16em;
+          text-transform: uppercase; color: var(--amber); margin-bottom: 14px;
+        }
+        .lp-footer-link {
+          display: block; font-size: .85rem; color: var(--text3);
+          text-decoration: none; margin-bottom: 10px; transition: color .2s; cursor: pointer;
+        }
+        .lp-footer-link:hover { color: var(--amber) }
         .lp-footer-bottom {
           max-width: 860px; margin: 32px auto 0;
           padding-top: 20px; border-top: 1px solid rgba(255,255,255,.05);
-          display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+          display: flex; align-items: center; justify-content: space-between;
+          flex-wrap: wrap; gap: 10px;
         }
         .lp-footer-copy { font-size: .72rem; color: var(--text3) }
 
-        @media (max-width: 768px) {
-          .idm-nav { padding: 0 20px }
-          .idm-hero { padding: 56px 20px 60px }
-          .idm-hero-stats { gap: 24px; margin-top: 48px }
+        /* ── RESPONSIVO (idêntico ao SN-main) ── */
+        @media(max-width:768px) {
+          .v2-nav { padding: 0 20px }
+          .v2-hero-body { padding: 56px 20px 60px }
+          .v2-hero-stats { gap: 24px; margin-top: 48px }
           .lp-founder-grid { grid-template-columns: 1fr }
           .lp-footer-inner { grid-template-columns: 1fr; gap: 32px }
-          .idm-nav-name { display: none }
-          .lp-form-card { padding: 28px 22px }
+          .v2-nav-logo-name { display: none }
         }
-        @media (max-width: 480px) {
+        @media(max-width:480px) {
           .lp-what-grid { grid-template-columns: 1fr }
-          .idm-h1 { font-size: 2.2rem }
+          .v2-hero-h1 { font-size: 2.4rem }
+          .v2-hero-stats { gap: 16px }
+          .lp-video-grid { grid-template-columns: 1fr }
         }
       `}</style>
 
-      <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+      <div id="lp-root">
 
-        {/* ── NAVBAR ── */}
-        <nav className="idm-nav">
-          <a className="idm-nav-logo" href="#">
-            <div className="idm-nav-badge">IDM</div>
-            <span className="idm-nav-name">Instituto Despertamente</span>
+        {/* ══ NAVBAR ══ */}
+        <nav className="v2-nav">
+          <a className="v2-nav-logo" href="#">
+            <div className="v2-nav-logo-badge">IDM</div>
+            <span className="v2-nav-logo-name">Instituto Despertamente</span>
           </a>
-          <a href="#form-section" className="idm-nav-cta">Garantir Minha Vaga →</a>
+          <a href="#form-section" className="v2-nav-cta">Garantir Minha Vaga →</a>
         </nav>
 
-        {/* ── TICKER ── */}
-        <div className="idm-ticker" aria-hidden="true">
-          <div className="idm-ticker-inner">
-            {[
-              '✦ Aula 100% gratuita',
-              '✦ Vagas limitadas por turma',
-              '✦ Conteúdo exclusivo e aprofundado',
-              '✦ Instituto Despertamente',
-              '✦ Aula 100% gratuita',
-              '✦ Vagas limitadas por turma',
-              '✦ Conteúdo exclusivo e aprofundado',
-              '✦ Instituto Despertamente',
-            ].map((item, i) => (
-              <span key={i} className="idm-ticker-item">
-                <span className="idm-ticker-dot" /> {item.replace('✦ ', '')}
-              </span>
-            ))}
+        {/* ══ TICKER ══ */}
+        <div className="v2-ticker-wrap" aria-hidden="true">
+          <div className="v2-ticker">
+            <div className="v2-ticker-inner">
+              {[
+                '✦ Aula 100% gratuita',
+                '✦ Vagas limitadas por turma',
+                '✦ Instituto Despertamente',
+                '✦ Conteúdo exclusivo e aprofundado',
+                '✦ Turmas a cada 30 minutos',
+                '✦ Aula 100% gratuita',
+                '✦ Vagas limitadas por turma',
+                '✦ Instituto Despertamente',
+                '✦ Conteúdo exclusivo e aprofundado',
+                '✦ Turmas a cada 30 minutos',
+              ].map((item, i) => (
+                <span key={i}>
+                  <span className="v2-ticker-dot" /> {item.replace('✦ ', '')}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* ── HERO ── */}
-        <div className="idm-hero">
-          <div className="idm-eyebrow">
-            <span className="idm-eyebrow-dot" />
+        {/* ══ HERO ══ */}
+        <div className="v2-hero-body">
+          <div className="v2-eyebrow">
+            <span className="v2-eyebrow-dot" />
             Instituto Despertamente · Aula Gratuita
-            <span className="idm-eyebrow-dot" />
+            <span className="v2-eyebrow-dot" />
           </div>
-          <h1 className="idm-h1">
-            {webinar.title.split(',')[0]},
-            <br />
-            <span className="idm-h1-accent">
-              {webinar.title.includes(',') ? webinar.title.split(',').slice(1).join(',').trim() : 'ao vivo e de graça'}
+          <h1 className="v2-hero-h1">
+            {webinar.title.split(',')[0]},<br />
+            <span className="v2-hero-accent">
+              {webinar.title.includes(',')
+                ? webinar.title.split(',').slice(1).join(',').trim()
+                : 'ao vivo e de graça'}
             </span>
           </h1>
-          <p className="idm-hero-sub">
+          <p className="v2-hero-sub">
             {webinar.description || 'Uma aula gratuita e exclusiva com conteúdo que vai além do convencional. Sem enrolação.'}
           </p>
-          <div className="idm-cta-wrap">
-            <a href="#form-section" className="idm-cta">
+          <div className="v2-hero-cta-wrap">
+            <a href="#form-section" className="v2-hero-cta">
               Garantir Minha Vaga Agora
-              <svg className="idm-cta-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </a>
-            <p className="idm-cta-sub">Gratuito · Vagas limitadas · Sem enrolação</p>
+            <p className="v2-cta-sub">Gratuito · Vagas limitadas · Turmas a cada 30 minutos</p>
           </div>
 
-          <div className="idm-hero-stats">
-            <div className="idm-stat"><span className="val">4.800+</span><span className="lbl">alunos formados</span></div>
-            <div className="idm-stat"><span className="val">97%</span><span className="lbl">satisfação</span></div>
-            <div className="idm-stat"><span className="val">8 anos</span><span className="lbl">de pesquisa</span></div>
-            <div className="idm-stat"><span className="val">100%</span><span className="lbl">gratuita</span></div>
+          <div className="v2-hero-stats">
+            <div><span className="v2-stat-num">4.800+</span><span className="v2-stat-label">alunos formados</span></div>
+            <div><span className="v2-stat-num">97%</span><span className="v2-stat-label">satisfação</span></div>
+            <div><span className="v2-stat-num">8 anos</span><span className="v2-stat-label">de pesquisa</span></div>
+            <div><span className="v2-stat-num">100%</span><span className="v2-stat-label">gratuita</span></div>
           </div>
         </div>
 
-        {/* ── O QUE VOCÊ VAI APRENDER ── */}
+        {/* ══ O QUE VOCÊ VAI APRENDER ══ */}
         <section className="lp-section">
           <div className="lp-inner">
             <div className="lp-label">O Conteúdo</div>
@@ -397,9 +479,9 @@ export default async function CapturePage({ params }: Props) {
           </div>
         </section>
 
-        {/* ── MID CTA ── */}
+        {/* ══ MID CTA ══ */}
         <section className="lp-cta-mid">
-          <a href="#form-section" className="idm-cta">
+          <a href="#form-section" className="v2-hero-cta">
             Quero minha vaga gratuita agora
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
@@ -408,26 +490,31 @@ export default async function CapturePage({ params }: Props) {
           <p>Gratuito · Conteúdo exclusivo · Turmas a cada 30 minutos</p>
         </section>
 
-        {/* ── DEPOIMENTOS ── */}
+        {/* ══ DEPOIMENTOS (mesma estrutura do SN-main — video placeholders) ══ */}
         <section className="lp-section">
           <div className="lp-inner">
             <div className="lp-label">Depoimentos</div>
             <h2 className="lp-h2">O que dizem os<br />alunos do IDM</h2>
             <p className="lp-lead">Experiências reais de pessoas que encontraram clareza, propósito e transformação através do conteúdo do Instituto Despertamente.</p>
-            <div className="lp-test-grid">
-              {testimonials.map((t, i) => (
-                <div key={i} className="lp-test-card">
-                  <div className="lp-test-stars">{t.stars}</div>
-                  <p className="lp-test-text">{t.text}</p>
-                  <div className="lp-test-name">{t.name}</div>
-                  <div className="lp-test-city">{t.city}</div>
+            <div className="lp-video-grid">
+              {[
+                { stars: '★★★★★', text: '"Depois da aula, comecei a enxergar padrões que se repetiam há anos na minha vida. Foi uma virada completa."', name: 'Camila R. — São Paulo, SP' },
+                { stars: '★★★★★', text: '"Nunca imaginei que entender a psicanálise pudesse ser tão acessível. O conteúdo é profundo e ao mesmo tempo prático."', name: 'Marcos T. — Rio de Janeiro, RJ' },
+                { stars: '★★★★★', text: '"A aula mudou a forma como eu me relaciono comigo mesmo e com as pessoas ao redor. Recomendo para todos."', name: 'Fernanda L. — Curitiba, PR' },
+              ].map((t, i) => (
+                <div key={i} className="lp-video-wrap">
+                  <div className="lp-video-placeholder">
+                    <div className="lp-test-stars">{t.stars}</div>
+                    <p className="lp-test-text">{t.text}</p>
+                    <div className="lp-test-name">{t.name}</div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── APRESENTADOR ── */}
+        {/* ══ APRESENTADOR (idêntico ao SN-main founder section) ══ */}
         {webinar.presenter_name && (
           <section className="lp-section">
             <div className="lp-inner">
@@ -437,19 +524,24 @@ export default async function CapturePage({ params }: Props) {
                   <h2 className="lp-founder-name">{webinar.presenter_name}</h2>
                   <div className="lp-founder-role">Fundador do Instituto Despertamente</div>
                   <p className="lp-founder-text">
-                    Psicanalista, pesquisador e educador, {webinar.presenter_name} fundou o Instituto Despertamente com uma missão clara: tornar o autoconhecimento profundo acessível a todos.
+                    Psicanalista, pesquisador e educador, {webinar.presenter_name} fundou o Instituto Despertamente
+                    com uma missão clara: tornar o autoconhecimento profundo acessível a todos.
                   </p>
                   <p className="lp-founder-text">
-                    Seu método integra psicanálise, neurociência e inteligência sistêmica em uma abordagem única — que não apenas explica quem você é, mas mostra o caminho para quem você pode se tornar.
+                    Seu método integra psicanálise, neurociência e inteligência sistêmica em uma abordagem única —
+                    que não apenas explica quem você é, mas mostra o caminho para quem você pode se tornar.
                   </p>
-                  <a href="#form-section" className="idm-cta" style={{ marginTop: '8px', fontSize: '.92rem', padding: '14px 28px' }}>
+                  <a href="#form-section" className="v2-hero-cta" style={{ fontSize: '.9rem', padding: '14px 28px', marginTop: '8px', display: 'inline-flex' }}>
                     Participar da aula gratuita →
                   </a>
                 </div>
-                <div className="lp-founder-photo">
+                <div className="lp-founder-video">
                   {webinar.presenter_photo_url
-                    ? <img src={webinar.presenter_photo_url} alt={webinar.presenter_name} />
-                    : <span style={{ color: 'var(--text3)', fontSize: '.85rem' }}>Foto do apresentador<br />em breve</span>
+                    ? <img src={webinar.presenter_photo_url} alt={webinar.presenter_name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    : <div className="lp-video-placeholder">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.4"/><path d="M10 8l6 4-6 4V8z" fill="currentColor"/></svg>
+                        Foto / vídeo do apresentador
+                      </div>
                   }
                 </div>
               </div>
@@ -457,23 +549,22 @@ export default async function CapturePage({ params }: Props) {
           </section>
         )}
 
-        {/* ── FORMULÁRIO ── */}
+        {/* ══ FORMULÁRIO (adaptado do v2Form do SN-main) ══ */}
         <section className="lp-form-section" id="form-section">
-          <div className="lp-form-inner">
-            <span className="lp-form-label">Sua inscrição gratuita</span>
-            <h2 className="lp-form-h2">Garanta sua vaga agora</h2>
-            <p className="lp-form-sub">
+          <div className="v2-form-inner">
+            <span className="v2-form-eyebrow">Sua inscrição gratuita</span>
+            <h2 className="v2-form-h2">Garanta sua vaga agora</h2>
+            <p className="v2-form-sub">
               Preencha abaixo para entrar na próxima turma disponível.
               Vagas limitadas — turmas a cada 30 minutos.
             </p>
-            <div className="lp-form-card">
-              <RegistrationForm webinarId={webinar.id} webinarSlug={webinar.slug} />
+            <div className="v2-form-card">
+              <RegistrationFormLP webinarId={webinar.id} webinarSlug={webinar.slug} />
             </div>
-            <p className="lp-form-footer">🔒 Seus dados estão protegidos. Não enviamos spam.</p>
           </div>
         </section>
 
-        {/* ── FOOTER ── */}
+        {/* ══ FOOTER (idêntico ao SN-main) ══ */}
         <footer className="lp-footer">
           <div className="lp-footer-inner">
             <div>
